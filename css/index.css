@@ -1,0 +1,106 @@
+body {
+	height: 100vh;
+	display: flex;
+	flex-direction: column;
+}
+
+main {
+	flex-grow: 1;
+	display: flex;
+	flex-direction: column;
+}
+
+h1, #layout h3 {
+	margin-left: 16px;
+	margin-right: 16px;
+}
+
+#langName {
+	width: 100%;
+	text-align: center;
+}
+
+#tooSmallMessage, noscript {
+	text-align: center;
+	margin: 0 1em 1em;
+	display: block;
+}
+
+#layout {
+	flex-grow: 1;
+	margin-bottom: 1em;
+	display: none;
+	position: relative;
+}
+
+#layout h3 {margin-top: 0;}
+
+.gridBox {
+	display: flex;
+	flex-direction: column;
+	position: absolute;
+	box-sizing: border-box;
+}
+
+.gridBox textarea {
+	font-family: 'Roboto Mono', monospace;
+	flex-grow: 1;
+}
+
+#programBox {
+	width: calc(50% - 0.5em);
+	height: 100%;
+	top: 0;
+	left: 0;
+}
+
+#inputBox {
+	width: calc(50% - 0.5em);
+	height: calc(50% - 1em);
+	top: 0;
+	right: 0;
+}
+
+#outputBox {
+	width: calc(50% - 0.5em);
+	height: calc(50% - 0.5em);
+	bottom: 0;
+	right: 0;
+}
+
+#output {
+	flex-grow: 1;
+	border: 1px solid white;
+	overflow: auto;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+#output li {
+	font-family: 'Roboto Mono', monospace;
+	word-break: break-word;
+	border-bottom: 1px solid gray;
+	padding: 0.5em;
+}
+
+.errorLog {color: red;}
+
+.centeredDot {
+	margin: 0 auto;
+	width: 5px;
+	height: 5px;
+	background-color: dimgray;
+	border-radius: 50%;
+}
+
+@media screen and (min-width: 481px) {
+	#tooSmallMessage {display: none;}
+	#layout {display: block;}
+}
+
+@media only screen and (prefers-color-scheme: light) {
+	#output {border-color: #383838;}
+	
+	.centeredDot {background-color: #979797;}
+}

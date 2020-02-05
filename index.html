@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<!-- TODO: meta description -->
+		<title>HQ9+ Complete Interpreter</title>
+		<!-- favicons -->
+		<link rel="icon" type="image/png" sizes="16x16" href="/favicon-96x96.png">
+		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+		<!-- misc -->
+		<meta name="theme-color" content="#cddc39">
+		<!-- style -->
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css?family=Roboto+Mono&display=swap" rel="stylesheet">
+		<link href="/res/fontAwesome/css/fontawesome.css" rel="stylesheet">
+		<link href="/res/fontAwesome/css/solid.css" rel="stylesheet">
+		<link href="/css/global.css" rel="stylesheet">
+		<link href="/css/index.css" rel="stylesheet">
+		<!-- script -->
+		<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+		<script src="/js/watchForHover.js"></script>
+		<script src="/config.js"></script>
+		<script src="/js/global.js"></script>
+		<script src="/js/indexInterpreter.js"></script>
+		<script src="/js/indexUi.js"></script>
+	</head>
+	<body>
+		<header>
+			<div><img src="res/logo.png" id="logo" alt="App logo icon"></div>
+			<div style="flex-grow: 1;"></div>
+			<div><button id="runButton" class="roundButton" aria-label="Run" disabled><i class="fas fa-play"></i></button></div>
+			<div><button id="helpButton" class="roundButton" aria-label="Help" disabled><i class="fas fa-question"></i></button></div>
+			<div><button id="aboutButton" class="roundButton" aria-label="About" disabled><i class="fas fa-info"></i></button></div>
+		</header>
+		<main>
+			<h1><input type="text" id="langName" placeholder="Language name" autocomplete="off" spellcheck="false"></h1>
+			<noscript>Please enable JavaScript and reload</noscript>
+			<div id="tooSmallMessage">Your window is too small to use this page, please resize your window or switch to a larger screen</div>
+			<div id="layout">
+				<div class="gridBox" id="programBox" style="margin-right: 0.5em;">
+					<h3>Program</h3>
+					<textarea id="code" autocomplete="off" spellcheck="false" wrap="off"></textarea>
+				</div>
+				<div class="gridBox" id="inputBox">
+					<h3>Input</h3>
+					<textarea id="input" autocomplete="off" spellcheck="false" wrap="off"></textarea>
+				</div>
+				<div class="gridBox" id="outputBox">
+					<h3>Output</h3>
+					<ul id="output"></ul>
+				</div>
+			</div>
+		</main>
+		<div id="modalShade"></div>
+		<div class="modal" id="helpModal">
+			<div class="modalContent">
+				<div class="modalNav">
+					<div style="flex-grow: 1;"></div>
+					<button class="modalClose roundButton" aria-label="Close"><i class="fas fa-times"></i></button>
+				</div>
+				<h3>Help</h3>
+				<p>Type the name of the language to interpret in the "Language name" box at the top. Available languages include:</p>
+				<ul>
+					<li>HQ9+</li>
+					<li>CHIQRSX9+</li>
+					<!-- <li>HQ9+B</li> -->
+					<li>HQ9+2D</li>
+					<li>H9+</li>
+					<li>FISHQ9+</li>
+					<li>+</li>
+				</ul>
+				<p>You can combine features of multiple languages by combining their names, or remove features by removing their parts of the name.</p>
+				<p>Write your program in the "Program" box at the left. If relevant, write input text in the "Input" box at the top right. Click <i class="fas fa-play"></i> or press Ctrl+Enter to run the program.</p>
+				<p>Infinite loops will cause the page to hang, so don't write them unless you want that.</p>
+			</div>
+		</div>
+		<div class="modal" id="aboutModal">
+			<div class="modalContent">
+				<div class="modalNav">
+					<div style="flex-grow: 1;"></div>
+					<button class="modalClose roundButton" aria-label="Close"><i class="fas fa-times"></i></button>
+				</div>
+				<h3>Links</h3>
+				<ul>
+					<li><a href="https://github.com/savaka2/hci" target="_blank" rel="noopener noreferrer">GitHub repo</a></li>
+					<li><a href="https://github.com/savaka2/hci/issues" target="_blank" rel="noopener noreferrer">GitHub issues</a></li>
+					<li><a href="https://esolangs.org/wiki/HQ9%2B" target="_blank" rel="noopener noreferrer">HQ9+ on Esolang</a></li>
+				</ul>
+				<div class="centeredDot" style="margin-top: 1em;"></div>
+				<img src="res/cred.png" id="cred" style="display: block; margin: 1em auto; width: 2em;" alt="Credit icon">
+				<p style="text-align: center; margin: 0;">Created by Sam K.</p>
+			</div>
+		</div>
+	</body>
+</html>

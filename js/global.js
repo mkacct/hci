@@ -92,7 +92,7 @@ function generateExpandLink(defaultText, shownText, containerSelector) {
 
 function lsGet(key, fallback) {
 	if (window.localStorage) {
-		let item = localStorage.getItem('hq9pci_' + key);
+		let item = localStorage.getItem('hci_' + key);
 		if (typeof item == 'string') {
 			return item;
 		} else {
@@ -106,7 +106,7 @@ function lsGet(key, fallback) {
 
 function lsSet(key, value) {
 	if (window.localStorage) {
-		localStorage.setItem('hq9pci_' + key, value.toString());
+		localStorage.setItem('hci_' + key, value.toString());
 	} else {
 		console.log('lsSet failed because localStorage is not available');
 	}

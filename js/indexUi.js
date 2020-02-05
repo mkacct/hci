@@ -9,7 +9,9 @@ $(document).ready(function() {
 	$('#input').val('');
 	$(window).on('beforeunload', function(e) {lsSet('code', $('#code').val());});
 	$('#langName').on('input', function(e) {
+		let p = $('#langName')[0].selectionStart;
 		$('#langName').val($('#langName').val().toUpperCase());
+		$('#langName')[0].setSelectionRange(p, p);
 	});
 	$('#langName').on('change', function(e) {
 		$('#langName').val($.trim($('#langName').val().toUpperCase()));

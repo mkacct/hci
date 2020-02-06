@@ -141,6 +141,7 @@ function interpret(prog, instrs, input) {
 			i = prog.length;
 		} else if (instrIs('dt', prog, instrs, i)) { // dt
 			print(42);
+			i++;
 		}
 		i++;
 	}

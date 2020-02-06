@@ -54,13 +54,20 @@ function run() {
 	}
 }
 
-function print(s, isError) {
+function print(s, isError, isBF) {
 	s = s.toString();
 	if (s == '') {s = '\u200b';}
-	let el = $('<li></li>').text(s);
-	if (isError) {el.addClass('errorLog');}
-	$('#output').append(el);
+	if (isBF && $('#output .bfLog:last-child').length > 0) {
+		$('#output :last-child').text($('#output :last-child').text() + s)
+	} else {
+		let el = $('<li></li>').text(s);
+		if (isError) {el.addClass('errorLog');}
+		if (isBF) {el.addClass('bfLog');}
+		$('#output').append(el);
+	}
 	$('#output').scrollTop($('#output')[0].scrollHeight);
 }
 
 function error(s) {print(s, true);}
+
+function endLine() {$('#output :last-child').removeClass('bfLog');} // extremely unintuitive

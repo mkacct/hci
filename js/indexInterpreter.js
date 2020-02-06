@@ -3,8 +3,15 @@
 // check syntax and validate instrs first
 function interpret(prog, instrs, input) {
 	prog = prog.toLowerCase();
-	if (instrs.indexOf('>') >= 0) {prog = twoDCompat(prog);} // > < ^ v
+	if (instrs.indexOf('^') >= 0) {prog = twoDCompat(prog);} // > < ^ v
 	let fish = instrs.indexOf('d') >= 0; // using deadfish
+	let isBf = instrs.indexOf('.') >= 0; // this is how i'll detect bf
+	let bfTape = [0];
+	let bfTapeSize = instrs.indexOf('dt') >= 0 ? 60000 : 30000; // a bit silly but yeah
+	let bfPointer = 0;
+	let bfInputI = 0;
+	let bfBrackets;
+	if (isBf) {bfBrackets = getBfBrackets(prog);} // match brackets for loops
 	let i = 0;
 	let count = 0;
 	while (i < prog.length) {
@@ -16,7 +23,15 @@ function interpret(prog, instrs, input) {
 		} else if (instrIs('9', prog, instrs, i)) {  // 9
 			beer();
 		} else if (instrIs('+', prog, instrs, i)) {  // +
-			count++;
+			if (isBf) { // bf increment
+				if (bfTape[bfPointer] >= 255) {
+					bfTape[bfPointer] = 0;
+				} else {
+					bfTape[bfPointer] = bfTape[bfPointer] + 1;
+				}
+			} else { // hq9+ increment
+				count++;
+			}
 		} else if (instrIs('++', prog, instrs, i)) {  // ++
 			count++;
 			count++;
@@ -24,27 +39,35 @@ function interpret(prog, instrs, input) {
 			new Thing();
 			i++;
 		} else if (instrIs('-', prog, instrs, i)) {  // -
-			if (i == 0) {
-				console.log('If this is logged I messed up');
-			} else if (prog[i - 1] == 'h') {
-				throw 'I/O error';
-			} else if (prog[i - 1] == 'q') {
-				let recursion = function() {recursion();};
-				recursion();
-			} else if (prog[i - 1] == '9') {
-				while (true) {};
-			} else if (prog[i - 1] == '-') {
-				count--;
-			} else if (prog[i - 1] == '+') {
-				if (prog[i - 2] == '+') {
-					let Thing = function() {
-						this.err = function() {throw new Error();}
-					};
-					try {
-						new Thing().err();
-					} catch(err) {} // this doesn't even need to do anything lol
+			if (isBf) { // bf decrement
+				if (bfTape[bfPointer] <= 0) {
+					bfTape[bfPointer] = 255;
 				} else {
-					1 / 0;
+					bfTape[bfPointer] = bfTape[bfPointer] - 1;
+				}
+			} else { // hq9+- quality control
+				if (i == 0) {
+					console.log('If this is logged I messed up');
+				} else if (prog[i - 1] == 'h') {
+					throw 'I/O error';
+				} else if (prog[i - 1] == 'q') {
+					let recursion = function() {recursion();};
+					recursion();
+				} else if (prog[i - 1] == '9') {
+					while (true) {};
+				} else if (prog[i - 1] == '-') {
+					count--;
+				} else if (prog[i - 1] == '+') {
+					if (prog[i - 2] == '+') {
+						let Thing = function() {
+							this.err = function() {throw new Error();}
+						};
+						try {
+							new Thing().err();
+						} catch(err) {} // this doesn't even need to do anything lol
+					} else {
+						1 / 0;
+					}
 				}
 			}
 		} else if (instrIs('c', prog, instrs, i)) {  // c
@@ -67,9 +90,40 @@ function interpret(prog, instrs, input) {
 			let rand = randomInt(0, 255);
 			eval(prog.substring(i + 1).replace(/./g, function(c) {return String.fromCharCode(c.charCodeAt(0) + rand);}));
 			i = prog.length;
+		} else if (instrIs('b', prog, instrs, i)) {  // b
+			let exclPos = input.indexOf('!');
+			let bfProg = exclPos == -1 ? input : input.substring(0, exclPos);
+			let bfInstrs = ['>', '<', '+', '-', '.', ',', '[', ']'];
+			if (checkSyntax(bfProg, bfInstrs)) {
+				interpret(bfProg, bfInstrs, exclPos == -1 ? '' : input.substring(exclPos + 1));
+			} else {
+				throw 'Syntax error';
+			}
+		} else if (instrIs('>', prog, instrs, i)) {  // >
+			if (isBf) { // bf right
+				bfPointer++;
+				if (bfPointer >= bfTapeSize) {throw 'Memory error';}
+				if (typeof bfTape[bfPointer] != 'number') {bfTape[bfPointer] = 0;}
+			}
 		} else if (instrIs('<', prog, instrs, i)) {  // <
-			if (prog[i - 1] && prog[i - 1] != '\n') {i--;};
-			i--; // negate loop ++
+			if (isBf) { // bf left
+				bfPointer--;
+				if (bfPointer < 0) {throw 'Memory error';}
+			} else { // 2d left
+				if (prog[i - 1] && prog[i - 1] != '\n') {i--;};
+				i--; // negate loop ++
+			}
+		} else if (instrIs('.', prog, instrs, i)) {  // .
+			print(String.fromCharCode(bfTape[bfPointer]), false, true);
+		} else if (instrIs(',', prog, instrs, i)) {  // ,
+			if (bfInputI < input.length) {
+				bfTape[bfPointer] = input.charCodeAt(bfInputI) % 256;
+				bfInputI++;
+			}
+		} else if (instrIs('[', prog, instrs, i)) {  // [
+			if (bfTape[bfPointer] == 0) {i = bfBrackets[i];}
+		} else if (instrIs(']', prog, instrs, i)) {  // ]
+			if (bfTape[bfPointer] != 0) {i = bfBrackets[i];}
 		} else if (instrIs('^', prog, instrs, i)) {  // ^
 			i = twoDMove(prog, i, false);
 		} else if (instrIs('v', prog, instrs, i)) {  // v
@@ -85,6 +139,7 @@ function interpret(prog, instrs, input) {
 		}
 		i++;
 	}
+	endLine(); // extremely unintuitive
 }
 
 function beer() {
@@ -111,7 +166,7 @@ function rot(s, i) {
 }
 
 function checkSyntax(prog, instrs) {
-	if (instrs.indexOf('-') >= 0) {
+	if (instrs.indexOf('-') >= 0) { // initial - syntax error
 		if (prog.indexOf('-') >= 0) {
 			let bad = true;
 			for (let i = 0; i < prog.indexOf('-'); i++) {
@@ -120,7 +175,34 @@ function checkSyntax(prog, instrs) {
 			if (bad) {return false;}
 		}
 	}
+	if (instrs.indexOf('[') >= 0) { // bf brackets
+		let loopCount = 0;
+		for (let i = 0; i < prog.length; i++) {
+			if (prog[i] == '[') {
+				loopCount++;
+			} else if (prog[i] == ']') {
+				loopCount--;
+			}
+			if (loopCount < 0) {return false;}
+		}
+		if (loopCount != 0) {return false;}
+	}
 	return true;
+}
+
+function getBfBrackets(prog) {
+	let res = {};
+	let startStack = [];
+	for (let i = 0; i < prog.length; i++) {
+		if (prog[i] == '[') {
+			startStack.push(i);
+		} else if (prog[i] == ']') {
+			let pair = startStack.pop();
+			res[pair] = i;
+			res[i] = pair;
+		}
+	}
+	return res;
 }
 
 function twoDMove(prog, i, isDown) {
@@ -152,6 +234,9 @@ function parseLangName(name) {
 		if (name.substring(0, 4) == 'FISH') {
 			nameTerms.push(name.substring(0, 4));
 			name = name.substring(4);
+		} else if (name.substring(0, 3) == 'H9F') {
+			nameTerms.push(name.substring(0, 3));
+			name = name.substring(3);
 		} else if (name.substring(0, 2) == '++' || name.substring(0, 2) == '+-' || name.substring(0, 2) == '2D') {
 			nameTerms.push(name.substring(0, 2));
 			name = name.substring(2);
@@ -165,6 +250,8 @@ function parseLangName(name) {
 	for (let i in nameTerms) {
 		if (nameTerms[i] == 'FISH') {
 			instrs.push('i', 'd', 's', 'o', 'k', 'h');
+		} else if (nameTerms[i] == 'H9F') {
+			instrs.push('<', '>', '+', '-', '[', ']', ',', '.', 'h', 'q', '9', 'dt');
 		} else if (nameTerms[i] == '++') {
 			instrs.push('+', '++');
 		} else if (nameTerms[i] == '+-') {
@@ -173,7 +260,7 @@ function parseLangName(name) {
 			instrs.push('>', '<', '^', 'v');
 			is2d = true;
 		} else if (nameTerms[i].length == 1) {
-			let singles = 'hq9+cirsx';
+			let singles = 'hq9+cirsxb';
 			let letter = nameTerms[i].toLowerCase();
 			if (singles.indexOf(letter) >= 0) {
 				instrs.push(letter);

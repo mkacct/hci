@@ -14,6 +14,7 @@ function interpret(prog, instrs, input) {
 	if (isBf) {bfBrackets = getBfBrackets(prog);} // match brackets for loops
 	let i = 0;
 	let count = 0;
+	endLine(); // lazy
 	while (i < prog.length) {
 		if (fish && (count == -1 || count == 256)) {count = 0;} // deadfish tradition
 		if (instrIs('h', prog, instrs, i)) {         // h

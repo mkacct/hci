@@ -160,11 +160,8 @@ function parseLangName(name) {
 			name = name.substring(1);
 		}
 	}
-	// bad cases are bad
-	if ((nameTerms.indexOf('FISH') >= 0 && (nameTerms.indexOf('I') >= 0 || nameTerms.indexOf('S') >= 0)) || (nameTerms.indexOf('2D') >= 0 && (nameTerms.indexOf('++') >= 0 || nameTerms.indexOf('+-') >= 0))) {
-		return [];
-	}
 	let instrs = [];
+	let is2d = false;
 	for (let i in nameTerms) {
 		if (nameTerms[i] == 'FISH') {
 			instrs.push('i', 'd', 's', 'o', 'k', 'h');
@@ -174,6 +171,7 @@ function parseLangName(name) {
 			instrs.push('+', '++', '-');
 		} else if (nameTerms[i] == '2D') {
 			instrs.push('>', '<', '^', 'v');
+			is2d = true;
 		} else if (nameTerms[i].length == 1) {
 			let singles = 'hq9+cirsx';
 			let letter = nameTerms[i].toLowerCase();
@@ -188,7 +186,7 @@ function parseLangName(name) {
 		}
 	}
 	for (let i in instrs) {
-		if (instrs.indexOf(instrs[i]) < i) {return [];}
+		if (instrs.indexOf(instrs[i]) < i || (is2d && instrs[i].length > 1)) {return [];} // no duplicates, no longer instrs with 2d
 	}
 	return instrs;
 }

@@ -76,7 +76,11 @@ function interpret(prog, instrs, input) {
 			if (fish) { // deadfish increment
 				count++;
 			} else { // interpret
-				interpret(input, instrs, input);
+				if (checkSyntax(input, instrs)) {
+					interpret(input, instrs, input);
+				} else {
+					throw 'Syntax error';
+				}
 			}
 		} else if (instrIs('r', prog, instrs, i)) {  // r
 			print(rot(input, 13));

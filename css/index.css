@@ -79,6 +79,7 @@ h1, #layout h3 {
 
 #output li {
 	font-family: 'Roboto Mono', monospace;
+	white-space: pre-wrap;
 	word-break: break-word;
 	border-bottom: 1px solid gray;
 	padding: 0.5em;

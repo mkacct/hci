@@ -170,7 +170,7 @@ function rot(s, i) {
 }
 
 function checkSyntax(prog, instrs) {
-	if (instrs.indexOf('-') >= 0) { // initial - syntax error
+	if (instrs.indexOf('-') >= 0 && instrs.indexOf('.') == -1) { // initial - syntax error
 		if (prog.indexOf('-') >= 0) {
 			let bad = true;
 			for (let i = 0; i < prog.indexOf('-'); i++) {
@@ -179,7 +179,7 @@ function checkSyntax(prog, instrs) {
 			if (bad) {return false;}
 		}
 	}
-	if (instrs.indexOf('[') >= 0) { // bf brackets
+	if (instrs.indexOf('.') >= 0) { // bf brackets
 		let loopCount = 0;
 		for (let i = 0; i < prog.length; i++) {
 			if (prog[i] == '[') {

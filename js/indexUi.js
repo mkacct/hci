@@ -34,12 +34,12 @@ $(document).ready(function() {
 });
 
 function run() {
-	$('#output').empty();
 	let instrs = parseLangName(langName);
 	if (instrs.length == 0) {throw 'How irresponsible of you';} // this shouldn't happen
 	let prog = $('#code').val();
 	let input = $('#input').val();
 	if (checkSyntax(prog, instrs)) {
+		$('#output').empty();
 		try {
 			interpret(prog, instrs, input);
 		} catch (err) {

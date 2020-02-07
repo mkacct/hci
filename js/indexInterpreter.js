@@ -3,7 +3,11 @@
 // check syntax and validate instrs first
 function interpret(prog, instrs, input) {
 	prog = prog.toLowerCase();
-	if (instrs.indexOf('^') >= 0) {prog = twoDCompat(prog);} // > < ^ v
+	let direction = ''; // 2d direction
+	if (instrs.indexOf('^') >= 0) { // > < ^ v
+		prog = twoDCompat(prog);
+		direction = '>';
+	}
 	let fish = instrs.indexOf('d') >= 0; // using deadfish
 	let isBf = instrs.indexOf('.') >= 0; // this is how i'll detect bf
 	let bfTape = [0];
@@ -113,14 +117,15 @@ function interpret(prog, instrs, input) {
 				bfPointer++;
 				if (bfPointer >= bfTapeSize) {throw 'Memory error';}
 				if (typeof bfTape[bfPointer] != 'number') {bfTape[bfPointer] = 0;}
+			} else { // 2d right
+				direction = '>';
 			}
 		} else if (instrIs('<', prog, instrs, i)) {  // <
 			if (isBf) { // bf left
 				bfPointer--;
 				if (bfPointer < 0) {throw 'Memory error';}
 			} else { // 2d left
-				if (prog[i - 1] && prog[i - 1] != '\n') {i--;};
-				i--; // negate loop ++
+				direction = '<';
 			}
 		} else if (instrIs('.', prog, instrs, i)) {  // .
 			bfOutput += String.fromCharCode(bfTape[bfPointer]);
@@ -134,9 +139,9 @@ function interpret(prog, instrs, input) {
 		} else if (instrIs(']', prog, instrs, i)) {  // ]
 			if (bfTape[bfPointer] != 0) {i = bfBrackets[i];}
 		} else if (instrIs('^', prog, instrs, i)) {  // ^
-			i = twoDMove(prog, i, false);
+			direction = '^';
 		} else if (instrIs('v', prog, instrs, i)) {  // v
-			i = twoDMove(prog, i, true);
+			direction = 'v';
 		} else if (instrIs('d', prog, instrs, i)) {  // d
 			count--;
 		} else if (instrIs('o', prog, instrs, i)) {  // o
@@ -144,7 +149,11 @@ function interpret(prog, instrs, input) {
 		} else if (instrIs('k', prog, instrs, i)) {  // k
 			i = prog.length;
 		}
-		i++;
+		if (direction != '') { // 2d movement
+			i = twoDMove(prog, i, direction);
+		} else { // advance normally
+			i++;
+		}
 	}
 	if (bfOutput.length > 0) {print(bfOutput);}
 }
@@ -173,7 +182,6 @@ function rot(s, i) {
 }
 
 function checkSyntax(prog, instrs) {
-	if (instrs.indexOf('^') >= 0) {alert('2D is currently unavailable, sorry'); return false;} // REMOVE THIS LINE
 	if (instrs.indexOf('-') >= 0 && instrs.indexOf('.') == -1) { // initial - syntax error
 		if (prog.indexOf('-') >= 0) {
 			let bad = true;
@@ -213,13 +221,27 @@ function getBfBrackets(prog) {
 	return res;
 }
 
-function twoDMove(prog, i, isDown) {
+function twoDMove(prog, i, direction) {
 	let lineLength = prog.split('\n')[0].length;
-	let pos = i + ((lineLength + 1) * (isDown ? 1 : -1));
-	if (pos >= 0 && pos < prog.length) {
-		return pos - 1; // -1 to negate loop ++
+	let newPos;
+	switch (direction) {
+		case '>':
+			newPos = i + 1;
+			break;
+		case '<':
+			newPos = i - 1;
+			break;
+		case '^':
+			newPos = i - (lineLength + 1);
+			break;
+		case 'v':
+			newPos = i + lineLength + 1;
+			break;
+	}
+	if (newPos < 0 || newPos >= prog.length || prog[newPos] == '\n') { // out of range
+		return prog.length; // end program
 	} else {
-		return i;
+		return newPos;
 	}
 }
 

@@ -46,9 +46,9 @@ function run() {
 			interpret(prog, instrs, input);
 		} catch (err) {
 			if (err.stack) {
-				error(err.stack);
+				output(err.stack, 'error');
 			} else {
-				error(err);
+				output(err, 'error');
 			}
 		}
 		$('#output').append(outputDiv);

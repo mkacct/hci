@@ -2,6 +2,7 @@
 
 let langName;
 let outputDiv;
+let running = false;
 
 $(document).ready(function() {
 	$('#langName').val(lsGet('langName', 'HQ9+'));
@@ -26,11 +27,13 @@ $(document).ready(function() {
 	});
 	$('#code').on('change', function(e) {lsSet('code', $('#code').val());});
 	$('#code, #input').on('keydown', function(e) {
-		if (e.ctrlKey && e.keyCode == 13) {run();}
+		if (e.ctrlKey && e.keyCode == 13 && !running) {run();}
 	});
-	$('#runButton').on('click', run);
-	$('#helpButton').on('click', function() {openModal('#helpModal');});
-	$('#aboutButton').on('click', function() {openModal('#aboutModal');});
+	$('#runButton').on('click', function(e) {
+		if (!running) {run();}
+	});
+	$('#helpButton').on('click', function(e) {openModal('#helpModal');});
+	$('#aboutButton').on('click', function(e) {openModal('#aboutModal');});
 	$('#runButton, #helpButton, #aboutButton').attr('disabled', false);
 });
 
@@ -40,19 +43,29 @@ function run() {
 	let prog = $('#code').val();
 	let input = $('#input').val();
 	if (checkSyntax(prog, instrs)) {
+		running = true;
 		$('#output').empty();
 		outputDiv = $('<div></div>');
-		try {
-			interpret(prog, instrs, input);
-		} catch (err) {
-			if (err.stack) {
-				output(err.stack, 'error');
-			} else {
-				output(err, 'error');
+		$('#runButton').attr('disabled', true);
+		$('#runButton').addClass('running');
+		$('#runButton').html('<i class="fas fa-spinner fa-pulse"></i>');
+		setTimeout(function() {
+			try {
+				interpret(prog, instrs, input);
+			} catch (err) {
+				if (err.stack) {
+					output(err.stack, 'error');
+				} else {
+					output(err, 'error');
+				}
 			}
-		}
-		$('#output').append(outputDiv);
-		$('#output').scrollTop($('#output')[0].scrollHeight);
+			$('#output').append(outputDiv);
+			$('#output').scrollTop($('#output')[0].scrollHeight);
+			$('#runButton').html('<i class="fas fa-play"></i>');
+			$('#runButton').removeClass('running');
+			$('#runButton').attr('disabled', false);
+			running = false;
+		}, 10);
 	} else {
 		toast('<i class="fas fa-exclamation-triangle"></i>Syntax error', 2000);
 	}

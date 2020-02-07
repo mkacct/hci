@@ -1,6 +1,7 @@
 'use strict';
 
 let langName;
+let outputDiv;
 
 $(document).ready(function() {
 	$('#langName').val(lsGet('langName', 'HQ9+'));
@@ -40,6 +41,7 @@ function run() {
 	let input = $('#input').val();
 	if (checkSyntax(prog, instrs)) {
 		$('#output').empty();
+		outputDiv = $('<div></div>');
 		try {
 			interpret(prog, instrs, input);
 		} catch (err) {
@@ -49,25 +51,26 @@ function run() {
 				error(err);
 			}
 		}
+		$('#output').append(outputDiv);
+		$('#output').scrollTop($('#output')[0].scrollHeight);
 	} else {
 		toast('<i class="fas fa-exclamation-triangle"></i>Syntax error', 2000);
 	}
 }
 
-function print(s, isError, isBF) {
+function output(s, msgType) {
 	s = s.toString();
 	if (s == '') {s = '\u200b';}
-	if (isBF && $('#output .bfLog:last-child').length > 0) {
-		$('#output :last-child').text($('#output :last-child').text() + s)
+	let el = $('<li></li>').text(s);
+	if (msgType == 'error') {
+		el.addClass('errorLog');
+	} else if (msgType == 'out') {
+		// nothing here
 	} else {
-		let el = $('<li></li>').text(s);
-		if (isError) {el.addClass('errorLog');}
-		if (isBF) {el.addClass('bfLog');}
-		$('#output').append(el);
+		throw 'I/O error';
 	}
-	$('#output').scrollTop($('#output')[0].scrollHeight);
+	outputDiv.append(el);
 }
 
-function error(s) {print(s, true);}
-
-function endLine() {$('#output :last-child').removeClass('bfLog');} // extremely unintuitive
+function print(s) {output(s, 'out');}
+function error(s) {output(s, 'error');}

@@ -12,9 +12,9 @@ function interpret(prog, instrs, input) {
 	let bfInputI = 0;
 	let bfBrackets;
 	if (isBf) {bfBrackets = getBfBrackets(prog);} // match brackets for loops
+	let bfOutput = '';
 	let i = 0;
 	let count = 0;
-	endLine(); // lazy
 	while (i < prog.length) {
 		if (fish && (count == -1 || count == 256)) {count = 0;} // deadfish tradition
 		if (instrIs('h', prog, instrs, i)) {         // h
@@ -50,7 +50,7 @@ function interpret(prog, instrs, input) {
 				if (i == 0) {
 					console.log('If this is logged I messed up');
 				} else if (prog[i - 1] == 'h') {
-					throw 'I/O error';
+					output('');
 				} else if (prog[i - 1] == 'q') {
 					let recursion = function() {recursion();};
 					recursion();
@@ -119,7 +119,7 @@ function interpret(prog, instrs, input) {
 				i--; // negate loop ++
 			}
 		} else if (instrIs('.', prog, instrs, i)) {  // .
-			print(String.fromCharCode(bfTape[bfPointer]), false, true);
+			bfOutput += String.fromCharCode(bfTape[bfPointer]);
 		} else if (instrIs(',', prog, instrs, i)) {  // ,
 			if (bfInputI < input.length) {
 				bfTape[bfPointer] = input.charCodeAt(bfInputI) % 256;
@@ -145,7 +145,7 @@ function interpret(prog, instrs, input) {
 		}
 		i++;
 	}
-	endLine(); // extremely unintuitive
+	if (bfOutput.length > 0) {print(bfOutput);}
 }
 
 function beer() {

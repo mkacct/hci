@@ -17,7 +17,17 @@ function interpret(prog, instrs, input) {
 	let count = 0;
 	while (i < prog.length) {
 		if (fish && (count == -1 || count == 256)) {count = 0;} // deadfish tradition
-		if (instrIs('h', prog, instrs, i)) {         // h
+		// LONG INSTRS FIRST
+		if (instrIs('++', prog, instrs, i)) {        // ++
+			count++;
+			count++;
+			let Thing = function() {};
+			new Thing();
+			i++;
+		} else if (instrIs('dt', prog, instrs, i)) { // dt
+			print('42');
+			i++;
+		} else if (instrIs('h', prog, instrs, i)) {  // h
 			print('Hello, world!');
 		} else if (instrIs('q', prog, instrs, i)) {  // q
 			print(prog);
@@ -33,12 +43,6 @@ function interpret(prog, instrs, input) {
 			} else { // hq9+ increment
 				count++;
 			}
-		} else if (instrIs('++', prog, instrs, i)) {  // ++
-			count++;
-			count++;
-			let Thing = function() {};
-			new Thing();
-			i++;
 		} else if (instrIs('-', prog, instrs, i)) {  // -
 			if (isBf) { // bf decrement
 				if (bfTape[bfPointer] <= 0) {
@@ -139,9 +143,6 @@ function interpret(prog, instrs, input) {
 			print(count);
 		} else if (instrIs('k', prog, instrs, i)) {  // k
 			i = prog.length;
-		} else if (instrIs('dt', prog, instrs, i)) { // dt
-			print(42);
-			i++;
 		}
 		i++;
 	}
@@ -172,6 +173,7 @@ function rot(s, i) {
 }
 
 function checkSyntax(prog, instrs) {
+	if (instrs.indexOf('^') >= 0) {alert('2D is currently unavailable, sorry'); return false;} // REMOVE THIS LINE
 	if (instrs.indexOf('-') >= 0 && instrs.indexOf('.') == -1) { // initial - syntax error
 		if (prog.indexOf('-') >= 0) {
 			let bad = true;
@@ -287,3 +289,6 @@ function parseLangName(name) {
 function instrIs(check, prog, instrs, i) {
 	return instrs.indexOf(check) >= 0 && prog.substring(i, i + check.length) == check;
 }
+
+function print(s) {output(s, 'out');}
+function error(s) {output(s, 'error');}

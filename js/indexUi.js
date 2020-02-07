@@ -71,6 +71,3 @@ function output(s, msgType) {
 	}
 	outputDiv.append(el);
 }
-
-function print(s) {output(s, 'out');}
-function error(s) {output(s, 'error');}

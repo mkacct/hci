@@ -261,9 +261,13 @@ function twoDCompat(prog) {
 function parseLangName(name) {
 	let nameTerms = [];
 	while (name.length > 0) {
-		if (name.substring(0, 4) == 'FISH') {
-			nameTerms.push(name.substring(0, 4));
-			name = name.substring(4);
+		if (name.substring(0, 3) == 'FIS') {
+			if (name[3] == 'H') {
+				nameTerms.push('FIS');
+			} else {
+				nameTerms.push('F', 'I', 'S');
+			}
+			name = name.substring(3);
 		} else if (name.substring(0, 3) == 'H9F') {
 			nameTerms.push(name.substring(0, 3));
 			name = name.substring(3);
@@ -278,8 +282,8 @@ function parseLangName(name) {
 	let instrs = [];
 	let is2d = false;
 	for (let i in nameTerms) {
-		if (nameTerms[i] == 'FISH') {
-			instrs.push('i', 'd', 's', 'o', 'k', 'h');
+		if (nameTerms[i] == 'FIS') {
+			instrs.push('i', 'd', 's', 'o', 'k');
 		} else if (nameTerms[i] == 'H9F') {
 			instrs.push('<', '>', '+', '-', '[', ']', ',', '.', 'h', 'q', '9', 'dt');
 		} else if (nameTerms[i] == '++') {

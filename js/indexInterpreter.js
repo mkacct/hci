@@ -21,7 +21,7 @@ function interpret(prog, instrs, input) {
 	let count = 0;
 	let terminate = false;
 	while (!terminate && (fish || i < prog.length)) {
-		if (fish && (count == -1 || count == 256)) {count = 0;} // deadfish tradition
+		if (count < 0 || (fish && count == 256)) {count = 0;} // constrain count, incl. deadfish tradition
 		// LONG INSTRS FIRST
 		if (instrIs('++', prog, instrs, i)) {        // ++
 			count++;

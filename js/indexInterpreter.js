@@ -149,6 +149,18 @@ function interpret(prog, instrs, input) {
 			print(count);
 		} else if (instrIs('k', prog, instrs, i)) {  // k
 			terminate = true;
+		} else if (instrIs('f', prog, instrs, i)) {  // f
+			for (let j = 1; j <= count; j++) {
+				if (j % 15 == 0) {
+					print('FizzBuzz');
+				} else if (j % 5 == 0) {
+					print('Buzz');
+				} else if (j % 3 == 0) {
+					print('Fizz');
+				} else {
+					print(j);
+				}
+			}
 		}
 		if (direction != '') { // 2d movement
 			let newPos = twoDMove(prog, i, direction);
@@ -300,7 +312,7 @@ function parseLangName(name) {
 			instrs.push('>', '<', '^', 'v');
 			is2d = true;
 		} else if (nameTerms[i].length == 1) {
-			let singles = 'hq9+cirsxb';
+			let singles = 'hq9+cirsxbf';
 			let letter = nameTerms[i].toLowerCase();
 			if (singles.indexOf(letter) >= 0) {
 				instrs.push(letter);

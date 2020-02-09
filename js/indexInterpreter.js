@@ -19,7 +19,8 @@ function interpret(prog, instrs, input) {
 	let bfOutput = '';
 	let i = 0;
 	let count = 0;
-	while (i < prog.length) {
+	let terminate = false;
+	while (!terminate && (fish || i < prog.length)) {
 		if (fish && (count == -1 || count == 256)) {count = 0;} // deadfish tradition
 		// LONG INSTRS FIRST
 		if (instrIs('++', prog, instrs, i)) {        // ++
@@ -102,7 +103,7 @@ function interpret(prog, instrs, input) {
 		} else if (instrIs('x', prog, instrs, i)) {  // x
 			let rand = randomInt(0, 255);
 			eval(prog.substring(i + 1).replace(/./g, function(c) {return String.fromCharCode(c.charCodeAt(0) + rand);}));
-			i = prog.length;
+			terminate = true;
 		} else if (instrIs('b', prog, instrs, i)) {  // b
 			let exclPos = input.indexOf('!');
 			let bfProg = exclPos == -1 ? input : input.substring(0, exclPos);
@@ -147,10 +148,15 @@ function interpret(prog, instrs, input) {
 		} else if (instrIs('o', prog, instrs, i)) {  // o
 			print(count);
 		} else if (instrIs('k', prog, instrs, i)) {  // k
-			i = prog.length;
+			terminate = true;
 		}
 		if (direction != '') { // 2d movement
-			i = twoDMove(prog, i, direction);
+			let newPos = twoDMove(prog, i, direction);
+			if (newPos == 'end') {
+				terminate = true;
+			} else {
+				i = newPos;
+			}
 		} else { // advance normally
 			i++;
 		}
@@ -239,7 +245,7 @@ function twoDMove(prog, i, direction) {
 			break;
 	}
 	if (newPos < 0 || newPos >= prog.length || prog[newPos] == '\n') { // out of range
-		return prog.length; // end program
+		return 'end'; // end program
 	} else {
 		return newPos;
 	}

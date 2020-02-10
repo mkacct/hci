@@ -20,10 +20,10 @@ function interpret(prog, instrs, input) {
 	let bfInputI = 0;
 	let bfBrackets;
 	if (isBf) {bfBrackets = getBfBrackets(prog);} // match brackets for loops
-	let bfOutput = '';
 	let i = 0;
 	let count = 0;
 	let terminate = false;
+	printRel();
 	while (!terminate && (fish || i < prog.length)) {
 		if (count < 0 || (fish && count == 256)) {count = 0;} // constrain count, incl. deadfish tradition
 		if (isFtc && instrs.indexOf(prog[i]) >= 0) {ftcInstrCount++;}
@@ -171,7 +171,7 @@ function interpret(prog, instrs, input) {
 				direction = '<';
 			}
 		} else if (instrIs('.', prog, instrs, i)) {  // .
-			bfOutput += String.fromCharCode(bfTape[bfPointer]);
+			printHold(String.fromCharCode(bfTape[bfPointer]));
 		} else if (instrIs(',', prog, instrs, i)) {  // ,
 			if (bfInputI < input.length) {
 				bfTape[bfPointer] = input.charCodeAt(bfInputI) % 256;
@@ -242,7 +242,7 @@ function interpret(prog, instrs, input) {
 			i++;
 		}
 	}
-	if (bfOutput.length > 0) {print(bfOutput);}
+	printRel();
 }
 
 function beer() {

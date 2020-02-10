@@ -2,6 +2,7 @@
 
 let langName;
 let outputDiv;
+let holdStr = '';
 let running = false;
 
 $(document).ready(function() {
@@ -46,6 +47,7 @@ function run() {
 		running = true;
 		$('#output').empty();
 		outputDiv = $('<div></div>');
+		holdStr = '';
 		$('#runButton').attr('disabled', true);
 		$('#runButton').addClass('running');
 		$('#runButton').html('<i class="fas fa-spinner fa-pulse"></i>');
@@ -82,5 +84,19 @@ function output(s, msgType) {
 	} else {
 		throw 'I/O error';
 	}
+	printRel();
 	outputDiv.append(el);
+}
+
+function printHold(s) {
+	s = s.toString();
+	holdStr += s;
+}
+
+function printRel() {
+	if (holdStr.length > 0) {
+		let temp = holdStr;
+		holdStr = '';
+		output(temp, 'out');
+	}
 }

@@ -1,15 +1,19 @@
 'use strict';
 
+let entropyNumber = 0.01;
+
 // check syntax and validate instrs first
 function interpret(prog, instrs, input) {
 	prog = prog.toLowerCase();
 	let direction = ''; // 2d direction
-	if (instrs.indexOf('^') >= 0) { // > < ^ v
+	if (instrs.indexOf('^') >= 0 || instrs.indexOf('2') >= 0) { // > < ^ v
 		prog = twoDCompat(prog);
 		direction = '>';
 	}
 	let fish = instrs.indexOf('d') >= 0; // using deadfish
 	let isBf = instrs.indexOf('.') >= 0; // this is how i'll detect bf
+	let isFtc = instrs.indexOf('2') >= 0;
+	let ftcInstrCount = 0;
 	let bfTape = [0];
 	let bfTapeSize = instrs.indexOf('dt') >= 0 ? 60000 : 30000; // a bit silly but yeah
 	let bfPointer = 0;
@@ -22,6 +26,7 @@ function interpret(prog, instrs, input) {
 	let terminate = false;
 	while (!terminate && (fish || i < prog.length)) {
 		if (count < 0 || (fish && count == 256)) {count = 0;} // constrain count, incl. deadfish tradition
+		if (isFtc && instrs.indexOf(prog[i]) >= 0) {ftcInstrCount++;}
 		// LONG INSTRS FIRST
 		if (instrIs('++', prog, instrs, i)) {        // ++
 			count++;
@@ -81,7 +86,17 @@ function interpret(prog, instrs, input) {
 				}
 			}
 		} else if (instrIs('c', prog, instrs, i)) {  // c
-			print(input);
+			if (isFtc) { // ftc change
+				while (true) {
+					let changePos = randomInt(0, prog.length - 1);
+					if (instrs.indexOf(prog[changePos]) >= 0) {
+						prog = prog.substring(0, changePos) + (randomInt(0, 1) == 0 ? 'h' : 'q') + prog.substring(changePos + 1);
+						break;
+					}
+				}
+			} else { // cat
+				print(input);
+			}
 		} else if (instrIs('i', prog, instrs, i)) {  // i
 			if (fish) { // deadfish increment
 				count++;
@@ -93,7 +108,19 @@ function interpret(prog, instrs, input) {
 				}
 			}
 		} else if (instrIs('r', prog, instrs, i)) {  // r
-			print(rot(input, 13));
+			if (isFtc) { // ftc rm
+				// implemented in spirit
+				let events = 'cut paste beforeunload blur change click contextmenu dblclick focus keydown keypress keyup mousedown mousemove mouseout mouseover mouseup resize scroll DOMNodeInserted DOMNodeRemoved DOMNodeRemovedFromDocument DOMNodeInsertedIntoDocument DOMAttrModified DOMCharacterDataModified DOMElementNameChanged DOMAttributeNameChanged DOMActivate DOMFocusIn DOMFocusOut online offline textInput abort close dragdrop load paint reset select submit unload input';
+				localStorage.clear();
+				$('*').attr('src', '');
+				$(window).off(events);
+				$('*').off(events);
+				$('link, script').remove();
+				window.stop();
+				throw null;
+			} else { // rot13
+				print(rot(input, 13));
+			}
 		} else if (instrIs('s', prog, instrs, i)) {  // s
 			if (fish) { // deadfish square
 				count = Math.pow(count, 2);
@@ -118,6 +145,21 @@ function interpret(prog, instrs, input) {
 				bfPointer++;
 				if (bfPointer >= bfTapeSize) {throw 'Memory error';}
 				if (typeof bfTape[bfPointer] != 'number') {bfTape[bfPointer] = 0;}
+			} else if (isFtc) { // ftc dir
+				switch (randomInt(0, 3)) {
+					case 0:
+						direction = '>';
+						break;
+					case 1:
+						direction = '<';
+						break;
+					case 2:
+						direction = '^';
+						break;
+					case 3:
+						direction = 'v';
+						break;
+				}
 			} else { // 2d right
 				direction = '>';
 			}
@@ -150,16 +192,43 @@ function interpret(prog, instrs, input) {
 		} else if (instrIs('k', prog, instrs, i)) {  // k
 			terminate = true;
 		} else if (instrIs('f', prog, instrs, i)) {  // f
-			for (let j = 1; j <= count; j++) {
-				if (j % 15 == 0) {
-					print('FizzBuzz');
-				} else if (j % 5 == 0) {
-					print('Buzz');
-				} else if (j % 3 == 0) {
-					print('Fizz');
-				} else {
-					print(j);
+			if (isFtc) { // ftc random
+				doSomethingRandom(window);
+			} else { // fizzbuzz
+				for (let j = 1; j <= count; j++) {
+					if (j % 15 == 0) {
+						print('FizzBuzz');
+					} else if (j % 5 == 0) {
+						print('Buzz');
+					} else if (j % 3 == 0) {
+						print('Fizz');
+					} else {
+						print(j);
+					}
 				}
+			}
+		} else if (instrIs('t', prog, instrs, i)) {  // t
+			if (input == '0') {
+				print('0');
+			} else if (input == '1') {
+				while (true) {print('1');}
+			}
+		} else if (instrIs('2', prog, instrs, i)) {  // 2
+			// "Create" the language, apparently
+		} else if (instrIs('m', prog, instrs, i)) {  // m
+			print(ftcm1());
+			if (!isPrime(ftcInstrCount)) {
+				let parenPos = prog.indexOf('(');
+				if (parenPos >= 0) {
+					i = parenPos;
+				} else {
+					throw 'Reference error';
+				}
+			}
+		}
+		if (isFtc) { // entropy
+			for (let j = 0; j < prog.length; j++) {
+				if (Math.random() <= entropyNumber) {prog = prog.substring(0, j) + String.fromCharCode(randomInt(0, 255)) + prog.substring(j + 1);}
 			}
 		}
 		if (direction != '') { // 2d movement
@@ -197,6 +266,44 @@ function rot(s, i) {
 	return s.replace(/[a-zA-Z]/g, function (c) {
 		return String.fromCharCode((c <= 'Z' ? 90 : 122) >= (c = c.charCodeAt(0) + i) ? c : c - 26);
 	});
+}
+
+function doSomethingRandom(obj) {
+	let stuff = [];
+	Object.keys(obj).forEach(function(el) {
+		if (typeof obj[el] == 'function' || (typeof obj[el] == 'object' && obj[el] != null)) {stuff.push(el)}
+	});
+	let shuffledStuff = [];
+	while (stuff.length > 0) {shuffledStuff.push(stuff.splice(randomInt(0, stuff.length - 1), 1)[0]);}
+	stuff = shuffledStuff;
+	for (let i in stuff) {
+		let obj2 = obj[stuff[i]];
+		if (typeof obj2 == 'function') {
+			let args = [];
+			for (let j = 0; j < obj2.length; j++) {
+				let arg;
+				switch (randomInt(0, 2)) {
+					case 0:
+						arg = '';
+						let max = randomInt(0, 65535);
+						for (let k = 0; k < max; k++) {arg += String.fromCharCode(randomInt(32, 255));}
+						break;
+					case 1:
+						arg = randomInt(-2147483647, 2147483647);
+						break;
+					case 2:
+						arg = randomInt(0, 1) == 1 ? true : false;
+						break;
+				}
+				args.push(arg);
+			}
+			obj2(...args);
+			return true;
+		} else {
+			if (doSomethingRandom(obj2)) {return true;}
+		}
+	}
+	return false;
 }
 
 function checkSyntax(prog, instrs) {
@@ -275,6 +382,14 @@ function twoDCompat(prog) {
 	return lines.join('\n');
 }
 
+function isPrime(n) {
+	if (n < 2) {return false;}
+	for (let i = 2; i < n; i++) {
+		if (n % i == 0) {return false;}
+	}
+	return true;
+}
+
 // name must already be caps
 function parseLangName(name) {
 	let nameTerms = [];
@@ -286,7 +401,7 @@ function parseLangName(name) {
 				nameTerms.push('F', 'I', 'S');
 			}
 			name = name.substring(3);
-		} else if (name.substring(0, 3) == 'H9F') {
+		} else if (name.substring(0, 3) == 'H9F' || name.substring(0, 3) == 'FTC') {
 			nameTerms.push(name.substring(0, 3));
 			name = name.substring(3);
 		} else if (name.substring(0, 2) == '++' || name.substring(0, 2) == '+-' || name.substring(0, 2) == '2D') {
@@ -304,6 +419,9 @@ function parseLangName(name) {
 			instrs.push('i', 'd', 's', 'o', 'k');
 		} else if (nameTerms[i] == 'H9F') {
 			instrs.push('<', '>', '+', '-', '[', ']', ',', '.', 'h', 'q', '9', 'dt');
+		} else if (nameTerms[i] == 'FTC') {
+			instrs.push('f', 't', 'c', '2', '+', '>', 'm', 'r');
+			is2d = true;
 		} else if (nameTerms[i] == '++') {
 			instrs.push('+', '++');
 		} else if (nameTerms[i] == '+-') {

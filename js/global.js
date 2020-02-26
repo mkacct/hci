@@ -1,10 +1,12 @@
 'use strict';
 
+const lsAppId = 'hci';
+
 $(document).ready(function() {
 	// tell desktop from mobile for hover
 	watchForHover();
 	// never keep buttons focused
-	$('button').on('click', function(e) {
+	$('body').on('click', 'button', function(e) {
 		$(this).blur();
 	});
 	// three ways to close a modal
@@ -92,7 +94,7 @@ function generateExpandLink(defaultText, shownText, containerSelector) {
 
 function lsGet(key, fallback) {
 	if (window.localStorage) {
-		let item = localStorage.getItem('hci_' + key);
+		let item = localStorage.getItem(lsAppId + '_' + key);
 		if (typeof item == 'string') {
 			return item;
 		} else {
@@ -106,10 +108,35 @@ function lsGet(key, fallback) {
 
 function lsSet(key, value) {
 	if (window.localStorage) {
-		localStorage.setItem('hci_' + key, value.toString());
+		localStorage.setItem(lsAppId + '_' + key, value.toString());
 	} else {
 		console.log('lsSet failed because localStorage is not available');
 	}
+}
+
+// if currentVer > storedVer
+function isNewerVer(currentVer, storedVer) {
+	let currentArr = splitVer(currentVer);
+	let storedArr = splitVer(storedVer);
+	for (let i in currentArr) {
+		let storedNum = 0;
+		if (typeof storedArr[i] == 'number') {storedNum = storedArr[i];} 
+		if (currentArr[i] > storedNum) {
+			return true;
+		} else if (currentArr[i] < storedNum) {
+			return false;
+		}
+	}
+	return false;
+}
+
+// split by . and cast to number
+function splitVer(ver) {
+	let verArr = ver.split('.');
+	verArr.forEach(function(str, i) {
+		verArr[i] = Number(str);
+	});
+	return verArr;
 }
 
 function randomInt(min, max) {return Math.floor(Math.random() * (max - min + 1)) + min;}

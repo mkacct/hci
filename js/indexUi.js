@@ -28,7 +28,7 @@ $(document).ready(function() {
 	});
 	$('#code').on('change', function(e) {lsSet('code', $('#code').val());});
 	$('#code, #input').on('keydown', function(e) {
-		if (e.ctrlKey && e.keyCode == 13 && !running) {run();}
+		if (e.ctrlKey && e.key == 'Enter' && !running) {run();}
 	});
 	$('#runButton').on('click', function(e) {
 		if (!running) {run();}

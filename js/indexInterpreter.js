@@ -110,14 +110,7 @@ function interpret(prog, instrs, input) {
 		} else if (instrIs('r', prog, instrs, i)) {  // r
 			if (isFtc) { // ftc rm
 				// implemented in spirit
-				let events = 'cut paste beforeunload blur change click contextmenu dblclick focus keydown keypress keyup mousedown mousemove mouseout mouseover mouseup resize scroll DOMNodeInserted DOMNodeRemoved DOMNodeRemovedFromDocument DOMNodeInsertedIntoDocument DOMAttrModified DOMCharacterDataModified DOMElementNameChanged DOMAttributeNameChanged DOMActivate DOMFocusIn DOMFocusOut online offline textInput abort close dragdrop load paint reset select submit unload input';
 				localStorage.clear();
-				$('*').attr('src', '');
-				$(window).off(events);
-				$('*').off(events);
-				$('link, script').remove();
-				window.stop();
-				throw null;
 			} else { // rot13
 				print(rot(input, 13));
 			}
